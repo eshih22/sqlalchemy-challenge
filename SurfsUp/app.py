@@ -81,7 +81,8 @@ def stations():
 @app.route("/api/v1.0/tobs")
 def tobs():
     session = Session(engine)
-    results = session.query(measurement.date, measurement.prcp).\
+    results = session.query(measurement.date, measurement.tobs).\
+    filter(measurement.date > dt.date(2016, 8, 22)).\
     filter(measurement.station == 'USC00519281').all()
     
     session.close()
@@ -92,27 +93,27 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def start_date(start):
     session = Session(engine)
-    results = session.query(measurement.date, measurement.prcp).\
-    filter(measurement.date > dt.date(2016, 8, 22)).order_by(measurement.date).all()
+    results = session.query(measurement.date, measurement.tobs).all()
 
     session.close()
     
     all_results = []
-    for date, prcp in results:
+    for date, tobs in results:
         results_dict = {}
         results_dict["date"] = date
-        results_dict["prcp"] = prcp
+        results_dict["tobs"] = tobs
         all_results.append(results_dict)
     
-    for date in all_results:
-        if start == "date":
+    for temp in all_results:
+        search_term = temp["tobs"]
+        if search_term == start:
             return jsonify(all_results)
-
     
     
 #@app.route("/api/v1.0/<start>/<end>")
 #def start_end_date(start, end):
-
+#    session = Session(engine)
+   
 
 if __name__ == '__main__':
     app.run(debug=True)
